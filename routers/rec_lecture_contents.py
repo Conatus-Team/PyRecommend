@@ -33,26 +33,28 @@ router = APIRouter(
 
 # Content Based Recommend
 def genre_recommendations(target_title, matrix, items, k=10):
-    print(target_title)
-    target_title = "디지털 카메라(DSLR) 완전 정복하기"
+    # print(target_title)
+    # target_title = "디지털 카메라(DSLR) 완전 정복하기"
     recom_idx = matrix.loc[:, target_title].values.reshape(1, -1).argsort()[:, ::-1].flatten()[1:k+1]
-    print(recom_idx)
-    recom_lecture_id = items.iloc[recom_idx, :].lecture_id.values
-    print(recom_lecture_id)
-    recom_title = items.iloc[recom_idx, :].lecture_name.values
-    print(recom_title)
-    recom_genre = items.iloc[recom_idx, :]['category_name'].values
-    print(recom_genre)
-    target_title_list = np.full(len(range(k)), target_title)
-    target_genre_list = np.full(len(range(k)), items[items.lecture_name == target_title]['category_name'].values)
-    d = {
-        'target_title':target_title_list,
-        'target_genre':target_genre_list,
-        'recom_title' : recom_title,
-        'recom_genre' : recom_genre
-    }
-    print(d)
-    return pd.DataFrame(d)
+    # print(recom_idx)
+    # recom_lecture_id = items.iloc[recom_idx, :].lecture_id.values
+    # # print(recom_lecture_id)
+    recom_title = items.iloc[recom_idx, :].lecture_id.values.tolist()
+    # print(recom_title)
+
+    return recom_title
+    # recom_genre = items.iloc[recom_idx, :]['category_name'].values
+    # # print(recom_genre)
+    # target_title_list = np.full(len(range(k)), target_title)
+    # target_genre_list = np.full(len(range(k)), items[items.lecture_id == target_title]['category_name'].values)
+    # d = {
+    #     'target_title':target_title_list,
+    #     'target_genre':target_genre_list,
+    #     'recom_title' : recom_title,
+    #     'recom_genre' : recom_genre
+    # }
+    # # print(d)
+    # return pd.DataFrame(d)
 
 # contents based에서 사용
 # 원핫 데이터로 만들어주는 함수
@@ -83,8 +85,8 @@ def onehot_endcode(target_df, target_column, hobby_list, use_number_column = Tru
   
   #droping the target_column
   df= df.drop([target_column], axis=1) 
-  #printing to verify 
-#   print(df.head())
+  ## printing to verify 
+#   # print(df.head())
   return df
 
 
@@ -94,12 +96,12 @@ def onehot_endcode(target_df, target_column, hobby_list, use_number_column = Tru
 # DB 연결
 @router.get("/{target_user_id}")
 async def recommend_lecture_contents_based(request: Request, target_user_id: int):
-    print(target_user_id)
+    # print(target_user_id)
     db_conn = request.state.db_conn
     
     # db 읽고 pandas dataframe으로 만들기
-    lecture_list = pd.read_sql("lecture_crawling", db_conn).drop(columns=["created_time", "updated_time", "curriculum", "image_path", "introduction", "is_deleted", "lecture_url", "site_name", "price", "amount"])
-    print(lecture_list.columns)
+    lecture_list = pd.read_sql("lecture_crawling", db_conn).drop(columns=["created_time", "updated_time", "curriculum", "image_path", "introduction", "is_deleted", "lecture_url", "site_name", "price", "amount", "lecture_name"])
+    # print(lecture_list.columns)
     # lecture_list.rename(columns = {'category':'hobby'},inplace=True)
 
     # hobby_preference = pd.read_sql("hobby_preference", db_conn).drop(columns=["created_time", "updated_time"])
@@ -116,7 +118,7 @@ async def recommend_lecture_contents_based(request: Request, target_user_id: int
     # lecture_user = user_lecture.iloc[:, 1]
     # hobby_user = user_hobby.iloc[:, 1]
     # group_user = group_activity.iloc[:, 0]
-    # print(lecture_user)
+    # # print(lecture_user)
     #  유저 id 목록, 유저 수 계산
 
     # lecture_user = user_lecture.loc[:, "user_id"]
@@ -125,9 +127,9 @@ async def recommend_lecture_contents_based(request: Request, target_user_id: int
 
     # user_id_list = set(map(int, list(lecture_user))).union(set(map(int, list(hobby_user)))).union(set(map(int, list(group_user))))
     # user_count = len(user_id_list)
-    # print(f"user_count: {user_count}")
-    # print(f"======================")
-    # print(f"user_id_list: {user_id_list}")
+    # # print(f"user_count: {user_count}")
+    # # print(f"======================")
+    # # print(f"user_id_list: {user_id_list}")
 
     # ===================================
     # =    Contents based filtering     =
@@ -135,17 +137,17 @@ async def recommend_lecture_contents_based(request: Request, target_user_id: int
 
 
     # ont-hot
-    data = lecture_list.iloc[:, 1:]
+    data = lecture_list.iloc[:, :]
 
 
-    data = onehot_endcode(data, "teacher_name", data)
+    data = onehot_endcode(data, "teacher_name", lecture_list)
     data = onehot_endcode(data, "category_name", data)
 
 
-    data.set_index('lecture_name',inplace = True)
+    data.set_index('lecture_id',inplace = True)
 
-    print(data.head(1))
-    # print(data.head())
+    # print(data.head(1))
+    # # print(data.head())
 
 
     # cosine similarity
@@ -168,23 +170,21 @@ async def recommend_lecture_contents_based(request: Request, target_user_id: int
     # 타겟 유저 설정
     for target_user in user_id_list:
         # contents based filtering
-        print(target_user)
+        # print(target_user)
         best_hobby = user_lecture[user_lecture['user_id'] == target_user]
-        print(best_hobby.head())
+        # print(best_hobby.head())
         best_hobby = best_hobby["lecture_id"].values
-        print(best_hobby)
+        # print(best_hobby)
         # best_hobby = user_hobby_rating[user_hobby_rating['user_id'] == target_user].sort_values(by='rating', ascending = False).head(1)["hobby"].values[0]
         
         # best_hobby에서 랜덤 3개 뽑기
         target_best_hobby = [ best_hobby[random.randrange(0,len(best_hobby))] for _ in range(4)]
-        print(target_best_hobby)
         result = []
 
         for best_hobby_item in target_best_hobby:
-            print(best_hobby_item)
             contents_based_result = genre_recommendations(best_hobby_item, cosine_sim_df, lecture_list, k=8)
-            # print(contents_based_result)
-            contents_based_result = contents_based_result["recom_title"].values
+            # # print(contents_based_result)
+            # contents_based_result = contents_based_result["recom_title"].values
             for rec_hobby in contents_based_result:
                 if rec_hobby not in target_best_hobby and  rec_hobby not in result:
                     result.append(rec_hobby)
@@ -201,8 +201,9 @@ async def recommend_lecture_contents_based(request: Request, target_user_id: int
         # result = result[:10]
         tmp = {"id": int(target_user), "recommend": result}
         result_list.append(tmp)
+    # print(result_list)
 
-    return (result_list)
+    return result_list
 
     # return "get ressponse"
 
