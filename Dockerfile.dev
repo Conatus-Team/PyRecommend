@@ -1,0 +1,32 @@
+
+# build
+# docker build -t sklearn-dev:latest .
+
+# run
+# docker run -it --name moine-pydev -p 8080:8080 -v /mnt/c/Project/conatus/PyRecommend:/app --entrypoint "/bin/sh" sklearn-dev
+
+# docker terminal
+# docker exec -it moine-pydev /bin/bash 
+
+# run the server
+# uvicorn main:app --reload --host=0.0.0.0 --port=8080
+
+# Base image
+FROM python:3.9
+
+# Set working directory
+WORKDIR /app
+
+# Copy files
+# COPY app.py /app
+COPY requirements.txt /app
+# COPY model /app/model
+# COPY ms /app/ms
+
+# Install dependencies
+RUN pip install -r requirements.txt
+
+# Run the application
+EXPOSE 8080
+# ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:8000", "--access-logfile", "-", "--error-logfile", "-", "--timeout", "120"]
+ENTRYPOINT ["bin/sh", "-it"]

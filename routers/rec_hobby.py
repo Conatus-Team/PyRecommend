@@ -41,6 +41,11 @@ def similar_users(user_id, matrix, k=3):
     other_users = matrix[matrix.index != user_id]
     
     # calc cosine similarity between user and each other user
+    print(f"=================================")
+    print(f"user: {user_id}")
+    print(f"user: {user.shape}")
+    print(f"other_users: {other_users.shape}")
+    print(f"=================================")
     similarities = cosine_similarity(user,other_users)[0].tolist()
     
     # create list of indices of these users
@@ -176,11 +181,15 @@ async def recommend_hobby(request: Request):
     # db 읽고 pandas dataframe으로 만들기
     hobby_list = pd.read_sql("hobby", db_conn).drop(columns=["created_time", "updated_time"])
     hobby_list.rename(columns = {'name':'hobby'},inplace=True)
+
     hobby_preference = pd.read_sql("hobby_preference", db_conn).drop(columns=["created_time", "updated_time"])
+
     user_hobby = pd.read_sql("user_hobby", db_conn).drop(columns=["created_time", "updated_time"])
     user_hobby = user_hobby.drop(["hobby_id"], axis=1) 
     user_hobby.rename(columns = {'hobby_name':'hobby'},inplace=True)
+
     group_activity = pd.read_sql("user_group", db_conn).drop(columns=["created_time", "updated_time"])
+
     user_lecture = pd.read_sql("user_lecture", db_conn).drop(columns=["created_time", "updated_time"])
 
     #  유저 id 목록, 유저 수 계산
@@ -196,6 +205,9 @@ async def recommend_hobby(request: Request):
 
     user_id_list = set(map(int, list(lecture_user))).union(set(map(int, list(hobby_user)))).union(set(map(int, list(group_user))))
     user_count = len(user_id_list)
+    print(f"user_count: {user_count}")
+    print(f"======================")
+    print(f"user_id_list: {user_id_list}")
 
     # ===================================
     # =     collaborative filtering     =
@@ -214,7 +226,7 @@ async def recommend_hobby(request: Request):
     print(f"user_hobby: {user_hobby.shape}")
     print(user_hobby_rating.shape)
     print(user_hobby.head())
-    print(user_hobby_rating.head())
+    print(user_hobby_rating[user_hobby_rating['user_id'] ==53])
     print("=======================")
 
     # user_lecture 정보를 이용해 rating 계산
@@ -238,6 +250,8 @@ async def recommend_hobby(request: Request):
     print("=======================")
     print(f"user lecture: {user_lecture.shape}")
     print(user_hobby_rating.shape)
+    print(user_hobby_rating.tail())
+    print(user_hobby_rating[user_hobby_rating['user_id'] ==53])
     print("=======================")
 
     # group_activity 아용해 rating 계산
@@ -263,6 +277,8 @@ async def recommend_hobby(request: Request):
     print("=======================")
     print(f"group activity: {group_activity.shape}")
     print(user_hobby_rating.shape)
+    print(user_hobby_rating.tail())
+    print(user_hobby_rating[user_hobby_rating['user_id'] ==53])
     print("=======================")
 
     # ~~~~~~~~ Feedback ~~~~~~~~~~
@@ -299,6 +315,7 @@ async def recommend_hobby(request: Request):
     print("=======================")
     print(f'hobby_preference: {hobby_preference.shape}')
     print(user_hobby_rating.shape)
+    # print(user_hobby_rating.tail())
     print("=======================")
 
 
@@ -329,11 +346,12 @@ async def recommend_hobby(request: Request):
     # =          최종 추천              =
     # ===================================
 
-    result_dic = dict()
-    result_dic["data"] = []
+    result_list = list()
+    # result_dic["data"] = []
 
-    # user_id string으로 바꾸기
-    user_id_list = list(map(str, sorted(list(user_id_list))))
+    ## user_id string으로 바꾸기 -> int로 해야 함
+    # user_id_list = list(map(str, sorted(list(user_id_list))))
+    user_id_list = list(map(int, sorted(list(user_id_list))))
     # 타겟 유저 설정
     for target_user in user_id_list:
         # collaborative filtering
@@ -347,17 +365,17 @@ async def recommend_hobby(request: Request):
 
         result = []
         i = 0
-        while len(result) < 10:
+        while len(result) < 3:
             if not (user_based_result[i] in result):
                 result.append(user_based_result[i])
             if not (contents_based_result[i] in result):
                 result.append(contents_based_result[i])
             i += 1
-        result = result[:10]
+        result = result[:3]
         tmp = {"id": int(target_user), "recommend": result}
-        result_dic["data"].append(tmp)
+        result_list.append(tmp)
 
-    return (result_dic)
+    return (result_list)
 
     # return "get ressponse"
 
