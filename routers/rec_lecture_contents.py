@@ -34,21 +34,24 @@ router = APIRouter(
 # Content Based Recommend
 def genre_recommendations(target_title, matrix, items, k=10):
     print(target_title)
-    # target_title = "디지털 카메라(DSLR) 완전 정복하기"
+    target_title = "디지털 카메라(DSLR) 완전 정복하기"
     recom_idx = matrix.loc[:, target_title].values.reshape(1, -1).argsort()[:, ::-1].flatten()[1:k+1]
     print(recom_idx)
-    recom_title = items.iloc[recom_idx, :].lecture_id.values
-    # print(recom_title)
+    recom_lecture_id = items.iloc[recom_idx, :].lecture_id.values
+    print(recom_lecture_id)
+    recom_title = items.iloc[recom_idx, :].lecture_name.values
+    print(recom_title)
     recom_genre = items.iloc[recom_idx, :]['category_name'].values
     print(recom_genre)
     target_title_list = np.full(len(range(k)), target_title)
-    target_genre_list = np.full(len(range(k)), items[items.lecture_id == target_title]['category_name'].values)
+    target_genre_list = np.full(len(range(k)), items[items.lecture_name == target_title]['category_name'].values)
     d = {
         'target_title':target_title_list,
         'target_genre':target_genre_list,
         'recom_title' : recom_title,
         'recom_genre' : recom_genre
     }
+    print(d)
     return pd.DataFrame(d)
 
 # contents based에서 사용
@@ -95,7 +98,7 @@ async def recommend_lecture_contents_based(request: Request, target_user_id: int
     db_conn = request.state.db_conn
     
     # db 읽고 pandas dataframe으로 만들기
-    lecture_list = pd.read_sql("lecture_crawling", db_conn).drop(columns=["created_time", "updated_time", "curriculum", "image_path", "introduction", "is_deleted", "lecture_url", "site_name", "price", "amount", "lecture_name"])
+    lecture_list = pd.read_sql("lecture_crawling", db_conn).drop(columns=["created_time", "updated_time", "curriculum", "image_path", "introduction", "is_deleted", "lecture_url", "site_name", "price", "amount"])
     print(lecture_list.columns)
     # lecture_list.rename(columns = {'category':'hobby'},inplace=True)
 
@@ -132,18 +135,14 @@ async def recommend_lecture_contents_based(request: Request, target_user_id: int
 
 
     # ont-hot
-    # data = lecture_list.iloc[:, 1:]
-    data = lecture_list.iloc[:, :]
- 
+    data = lecture_list.iloc[:, 1:]
 
 
     data = onehot_endcode(data, "teacher_name", data)
     data = onehot_endcode(data, "category_name", data)
 
 
-    print(data.head(1))
-    # data.set_index('lecture_name',inplace = True)
-    data.set_index('lecture_id',inplace = True)
+    data.set_index('lecture_name',inplace = True)
 
     print(data.head(1))
     # print(data.head())
