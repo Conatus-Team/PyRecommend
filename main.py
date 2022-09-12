@@ -5,12 +5,12 @@ from conn.db_conn import engineconn
 from sqlalchemy import select
 from typing import List
 
-from routers import rec_hobby, rec_hobby_contents
+from routers import rec_hobby, rec_hobby_contents, rec_lecture_contents
 
 app = FastAPI()
 app.include_router(rec_hobby.router)
 app.include_router(rec_hobby_contents.router)
-# app.include_router(items.router)
+app.include_router(rec_lecture_contents.router)
 # app.include_router(insert.router)
 # app.include_router(chat.router)
 # app.include_router(DB_connect_test.router)
@@ -32,17 +32,17 @@ class Item(BaseModel):
 
 
 @app.get("/")
-def first_get():
+def hello_world():
     return "hello world!!"
 
-@app.get("/get")
-async def first_get():
-    example = session.execute(
-    select(Hobby)
-    ).scalars().all()
-    print(example[0])
-    print(example[0].name)
-    return example
+# @app.get("/get")
+# async def first_get():
+#     example = session.execute(
+#     select(Hobby)
+#     ).scalars().all()
+#     print(example[0])
+#     print(example[0].name)
+#     return example
 
 # @app.post("/post")
 # async def first_post(item:Item):
