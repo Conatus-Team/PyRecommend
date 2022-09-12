@@ -5,10 +5,11 @@ from conn.db_conn import engineconn
 from sqlalchemy import select
 from typing import List
 
-from routers import rec_hobby
+from routers import rec_hobby, rec_hobby_contents
 
 app = FastAPI()
 app.include_router(rec_hobby.router)
+app.include_router(rec_hobby_contents.router)
 # app.include_router(items.router)
 # app.include_router(insert.router)
 # app.include_router(chat.router)
@@ -19,7 +20,7 @@ session = engine.sessionmaker()
 
 
 print("======================================")
-print("=        SERVER ON PORT 8000         =")
+print("=        SERVER ON PORT 8080         =")
 print("======================================")
 
 
