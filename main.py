@@ -5,13 +5,16 @@ from conn.db_conn import engineconn
 from sqlalchemy import select
 from typing import List
 
-from routers import rec_hobby, rec_hobby_contents, rec_lecture_contents, rec_group_contents
+from routers import rec_hobby, rec_hobby_contents
+from routers import rec_lecture_contents, rec_group_contents
+from routers import rec_lecture_coldstart
 
 app = FastAPI()
 app.include_router(rec_hobby.router)
 app.include_router(rec_hobby_contents.router)
 app.include_router(rec_lecture_contents.router)
 app.include_router(rec_group_contents.router)
+app.include_router(rec_lecture_coldstart.router)
 # app.include_router(insert.router)
 # app.include_router(chat.router)
 # app.include_router(DB_connect_test.router)
