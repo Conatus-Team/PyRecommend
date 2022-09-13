@@ -182,10 +182,12 @@ async def recommend_lecture_cold_start(request: Request, target_user_id: int):
     if (len(target_lecture_id)>= recommend_num):
       selected_lecture_id = random.sample(target_lecture_id, recommend_num)
     else:
-      
       left = recommend_num - len(target_lecture_id)
       print(f"left: {left}")
-      selected_lecture_id = target_lecture_id+list(random.sample(similar_user_lecture_without_target_lecture, left))
+      if (len(similar_user_lecture_without_target_lecture) >= left):
+        selected_lecture_id = target_lecture_id+list(random.sample(similar_user_lecture_without_target_lecture, left))
+      else:
+        selected_lecture_id = similar_user_lecture_without_target_lecture.copy()
     print("+++++++++++++++++++++++++")
     print(selected_lecture_id)
 
