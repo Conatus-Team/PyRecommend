@@ -24,7 +24,7 @@ conn_string=f'{app["name"]}://{app["user"]}:{app["password"]}@{app["host"]}:{app
 class engineconn:
 
     def __init__(self):
-        self.engine = create_engine(conn_string, pool_recycle =500, encoding = 'utf-8')
+        self.engine = create_engine(conn_string, pool_recycle =3600, encoding = 'utf-8')
 
     def sessionmaker(self):
         Session = sessionmaker(bind=self.engine)

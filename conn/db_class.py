@@ -1,61 +1,44 @@
-from sqlalchemy import Column, TEXT, INT, BIGINT, TIMESTAMP
+from sqlalchemy import Column, TEXT, BIGINT, TIMESTAMP, INTEGER, String
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.types import JSON
 from sqlalchemy.dialects.mssql import TINYINT
 Base = declarative_base()
 
 
-
-"""
--- test_db.test definition
-
-CREATE TABLE `test` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` text NOT NULL,
-  `number` int NOT NULL,
-  `json_data` json DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-"""
-
-class Test(Base):
-    __tablename__ = 'test'
+# hobby
+class Hobby(Base):
+    __tablename__ = 'hobby'
     id = Column(BIGINT,nullable=False, autoincrement=True, primary_key=True)
-    name = Column(TEXT, nullable=False)
-    number = Column(INT, nullable=False)
-    json_data = Column(JSON)
+    name = Column(String)
+    place = Column(INTEGER)
+    compete = Column(INTEGER)
+    strategic = Column(INTEGER)
+    group = Column(INTEGER)
+    type = Column(INTEGER)
 
-
-"""
--- test_db.small_talk definition
-
-CREATE TABLE `small_talk` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `Q` text NOT NULL,
-  `A` text NOT NULL,
-  `embedding` json NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47302 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-"""
-class SmallTalk(Base):
-    __tablename__ = 'chat_train'
+class HobbyPreference(Base):
+    __tablename__ = 'hobby_preference'
     id = Column(BIGINT,nullable=False, autoincrement=True, primary_key=True)
-    question = Column(TEXT, nullable=False)
-    answer = Column(TEXT, nullable=False)
-    embedding = Column(JSON, nullable=False)
-    # created_at = Column(TIMESTAMP)
-    # updated_at = Column(TIMESTAMP)
-    # is_deleted = Column(TINYINT)
+    user_id = Column(BIGINT)
+    tag = Column(String)
+    count = Column(INTEGER)
 
 
-# # JSON data
-# # Read a value
-# model.args['task']
-# # Read a value, cast to type
-# model.args['n'].as_integer()
+class UserHobby(Base):
+    __tablename__ = 'user_hobby'
+    id = Column(BIGINT,nullable=False, autoincrement=True, primary_key=True)
+    user_id = Column(BIGINT)
+    hobby_id = Column(BIGINT)
+    hobby_name = Column(String)
 
-# # Filter by a value
-# db.session.query(Pick).filter(Pick.args['task'] = 'Test Task')
+
+# group
+
+
+# lecture
+# class UserHobby(Base):
+#     __tablename__ = 'user_hobby'
+#     id = Column(BIGINT,nullable=False, autoincrement=True, primary_key=True)
+#     user_id = Column(BIGINT)
+#     hobby_id = Column(BIGINT)
+#     hobby_name = Column(String)
