@@ -120,6 +120,10 @@ async def recommend_group_cold_start(request: Request, target_user_id: int):
 
     user_group = pd.read_sql("user_group", db_conn).drop(columns=["created_time", "updated_time"])
 
+
+    # db 연결 해제
+    db_conn.close()
+
     #  유저 id 목록, 유저 수 계산
     # lecture_user = user_lecture.iloc[:, 1]
     # hobby_user = user_hobby.iloc[:, 1]

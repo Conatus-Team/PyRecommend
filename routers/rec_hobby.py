@@ -192,6 +192,9 @@ async def recommend_hobby(request: Request):
 
     user_lecture = pd.read_sql("user_lecture", db_conn).drop(columns=["created_time", "updated_time"])
 
+    # db 연결 해제
+    db_conn.close()
+
     #  유저 id 목록, 유저 수 계산
     # lecture_user = user_lecture.iloc[:, 1]
     # hobby_user = user_hobby.iloc[:, 1]

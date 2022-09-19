@@ -40,3 +40,6 @@ async def recommend_hobby(request: Request):
     user_hobby.rename(columns = {'hobby_name':'hobby'},inplace=True)
     group_activity = pd.read_sql("user_group", db_conn).drop(columns=["created_time", "updated_time"])
     user_lecture = pd.read_sql("user_lecture", db_conn).drop(columns=["created_time", "updated_time"])
+
+    # db 연결 해제
+    db_conn.close()

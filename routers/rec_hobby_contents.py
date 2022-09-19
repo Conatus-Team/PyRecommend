@@ -123,6 +123,8 @@ async def recommend_hobby(request: Request, target_user_id: int):
     print(f"======================")
     print(f"user_id_list: {user_id_list}")
 
+    db_conn.close()
+
     # ===================================
     # =    Contents based filtering     =
     # ===================================
